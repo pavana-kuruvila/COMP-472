@@ -8,42 +8,8 @@ import matplotlib.pyplot as plt
 import torchvision.transforms.functional as TF
 
 datasetPath = "/Users/vanakuruvila/Documents/School/COMP 472/DataSet copy"
-dataset = datasets.ImageFolder(datasetPath)
 
-"""
-def getMeanStd(loader):
-    # Compute the mean and standard deviation of all pixels in the dataset
-    num_pixels = 0
-    mean = 0.0
-    std = 0.0
-    for images, _ in loader:
-        #images = transforms.ToTensor()(images)
-        batch_size, num_channels, height, width = images.shape
-        num_pixels += batch_size * height * width
-        mean += images.mean(axis=(0, 2, 3)).sum()
-        std += images.std(axis=(0, 2, 3)).sum()
-
-    mean /= num_pixels
-    std /= num_pixels
-
-    return mean, std
-
-
-batch_size = 32
-
-transform = transforms.Compose([
-    transforms.Resize((224, 224)),
-    transforms.ToTensor(),
-])
-
-dataset = datasets.ImageFolder(datasetPath, transform=transform)
-
-loader = DataLoader(dataset, batch_size=batch_size, shuffle=True)
-mean, std = getMeanStd(loader)
-
-print(mean , std)
-
-"""
+#Data Cleaning 
 data_transforms = transforms.Compose([
     transforms.Resize((224, 224)),
     transforms.Grayscale(num_output_channels=3),
@@ -55,19 +21,81 @@ data_transforms = transforms.Compose([
 dataset = datasets.ImageFolder(datasetPath, transform=data_transforms)
 print("Dataset classes: ", dataset.classes)
 
-trainSet, testset = random_split(dataset, [0.8,0.2])
+"""
+#Data Visualization: Bar Graph
+distrubutionList = []
+
+classHappy = [(image, label) for image, label in dataset if dataset.classes[label] == dataset.classes[0]]
+distrubutionList.append(len(classHappy))
+
+classFocused = [(image, label) for image, label in dataset if dataset.classes[label] == dataset.classes[1]]
+distrubutionList.append(len(classFocused))
+
+classNeutral = [(image, label) for image, label in dataset if dataset.classes[label] == dataset.classes[2]]
+distrubutionList.append(len(classNeutral))
+
+classSurprised = [(image, label) for image, label in dataset if dataset.classes[label] == dataset.classes[3]]
+distrubutionList.append(len(classSurprised))
+
+print(distrubutionList)
+
+plt.bar(dataset.classes, distrubutionList)      
+plt.ylabel('Number of Images in each Class')  # labling y-axis
+plt.xlabel('Class Name')           # labling x-axis
+plt.title('Distribution of images per class')  
+plt.show()   
+"""
+
+#Split into traing and test sets
+trainSet, testSet = random_split(dataset, [0.8,0.2])
 
 trainLoader = DataLoader(trainSet, shuffle=True, batch_size=32)
-testLoadeer = DataLoader(testset, shuffle=True, batch_size=32)
+testLoadeer = DataLoader(testSet, shuffle=True, batch_size=32)
 
-samples = [trainSet[i] for i in range(10)]
 
-fig, axes = plt.subplots(2, 5, figsize=(12,6))
-for i, (image, label) in enumerate(samples):
-    ax = axes[i // 5, i % 5]
-    ax.imshow(TF.to_pil_image(image))
-    ax.set_title(f"Class: {dataset.classes[label]}")
-    ax.axis("off")
+#Data Visuilization: Random images display 
+for i in range(4):
+    samples = [(image, label) for image, label in trainSet if dataset.classes[label] == dataset.classes[i]][:25]
 
+    fig, axes = plt.subplots(5, 5, figsize=(12,8))
+    for j, (image, label) in enumerate(samples):
+        pilImage = TF.to_pil_image(image)
+        ax = axes[j // 5, j % 5]
+        ax.imshow(pilImage)
+        ax.set_title(f"Image #{j+1}")
+        ax.axis("off")
+
+    plt.subplots_adjust(wspace=-0.7, hspace=0.5)
+    plt.suptitle(f"Class: {dataset.classes[i]}", fontsize=22, fontweight="bold")
+    plt.show()
+
+
+#Data Visuilization: Histograph display 
+"""for i in range(4):
+    samples = [(image, label) for image, label in trainSet if dataset.classes[label] == dataset.classes[i]][:25]
+
+
+
+    fig, axes = plt.subplots(5, 5, figsize=(12,8))
+    for k, (image, label) in enumerate(samples):
+        pilImage = TF.to_pil_image(image)
+        pixelIntesities = list(pilImage.getdata())
+        ax = axes[k // 5, k % 5]
+        ax.hist(pixelIntesities, bins=256, range=(0, 256), density=True, alpha=0.7)
+        ax.set_title(f"Image #{k+1}")
+        ax.axis("off")
+
+    plt.subplots_adjust(wspace=-0.7, hspace=0.5)
+    plt.suptitle(f"Class: {dataset.classes[i]}", fontsize=22, fontweight="bold")
+    plt.show()"""
+
+   
+
+pilImage = TF.to_pil_image(samples[0][0])
+pixelIntesities = list(pilImage.getdata())
+print(len(pixelIntesities))
+
+
+plt.hist(pixelIntesities)
 plt.show()
 
