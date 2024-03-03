@@ -1,5 +1,5 @@
 import torch
-import os
+import numpy as np
 from torchvision import transforms 
 from PIL import Image
 import torchvision.datasets as datasets
@@ -14,14 +14,13 @@ data_transforms = transforms.Compose([
     transforms.Resize((224, 224)),
     transforms.Grayscale(num_output_channels=3),
     transforms.ToTensor(),
-    #transforms.Normalize(mean=mean, std=std)
     transforms.Normalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225]) # Standard from ImageNet
 ])
 
 dataset = datasets.ImageFolder(datasetPath, transform=data_transforms)
 print("Dataset classes: ", dataset.classes)
 
-"""
+
 #Data Visualization: Bar Graph
 distrubutionList = []
 
@@ -44,7 +43,7 @@ plt.ylabel('Number of Images in each Class')  # labling y-axis
 plt.xlabel('Class Name')           # labling x-axis
 plt.title('Distribution of images per class')  
 plt.show()   
-"""
+
 
 #Split into traing and test sets
 trainSet, testSet = random_split(dataset, [0.8,0.2])
@@ -69,33 +68,49 @@ for i in range(4):
     plt.suptitle(f"Class: {dataset.classes[i]}", fontsize=22, fontweight="bold")
     plt.show()
 
-
-#Data Visuilization: Histograph display 
-"""for i in range(4):
-    samples = [(image, label) for image, label in trainSet if dataset.classes[label] == dataset.classes[i]][:25]
-
-
-
-    fig, axes = plt.subplots(5, 5, figsize=(12,8))
+    fig, axes = plt.subplots(5, 5, figsize=(12,10))
     for k, (image, label) in enumerate(samples):
         pilImage = TF.to_pil_image(image)
-        pixelIntesities = list(pilImage.getdata())
-        ax = axes[k // 5, k % 5]
-        ax.hist(pixelIntesities, bins=256, range=(0, 256), density=True, alpha=0.7)
-        ax.set_title(f"Image #{k+1}")
-        ax.axis("off")
 
-    plt.subplots_adjust(wspace=-0.7, hspace=0.5)
+        normalized_array = np.array(pilImage)
+
+        channel1 = normalized_array[:, :, 0].flatten()
+        channel2 =normalized_array[:, :, 1].flatten()
+        channel3 =normalized_array[:, :, 2].flatten()
+
+        ax = axes[k // 5, k % 5]
+        ax.hist(channel1, bins=128, range=[0, 256], density=True, color='red', alpha=0.5, label='Red')
+        ax.hist(channel2, bins=128, range=[0, 256], density=True, color='green', alpha=0.5, label='Green')
+        ax.hist(channel3, bins=128, range=[0, 256], density=True, color='blue', alpha=0.5, label='Blue')
+        
+        ax.set_title(f"Image #{k+1}", fontsize=8)
+        ax.axis("on")
+        ax.tick_params(axis='both', labelsize=8) 
+
+    plt.subplots_adjust(wspace=0.5, hspace=0.6)
     plt.suptitle(f"Class: {dataset.classes[i]}", fontsize=22, fontweight="bold")
-    plt.show()"""
+    plt.show()
 
    
 
-pilImage = TF.to_pil_image(samples[0][0])
-pixelIntesities = list(pilImage.getdata())
-print(len(pixelIntesities))
+
+"""pilImage = TF.to_pil_image(samples[0][0])
+
+normalized_array = np.array(pilImage)
+
+channel1 = normalized_array[:, :, 0].flatten()
+channel2 =normalized_array[:, :, 1].flatten()
+channel3 =normalized_array[:, :, 2].flatten()
+
+pilImage.show()
 
 
-plt.hist(pixelIntesities)
-plt.show()
+plt.hist(channel1, bins=128, range=[0, 256], density=True, color='red', alpha=0.7, label='Red')
+plt.hist(channel2, bins=128, range=[0, 256], density=True, color='green', alpha=0.7, label='Green')
+plt.hist(channel3, bins=128, range=[0, 256], density=True, color='blue', alpha=0.7, label='Blue')
 
+#plt.xticks(np.linspace(0, 1, num=11))
+plt.title('Pixel Distribution of Normalized Image')
+plt.xlabel('Pixel Value')
+plt.ylabel('Frequency')
+plt.show()"""
