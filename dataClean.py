@@ -7,12 +7,18 @@ from torch.utils.data import DataLoader , random_split
 import matplotlib.pyplot as plt
 import torchvision.transforms.functional as TF
 
-datasetPath = "/Users/vanakuruvila/Documents/School/COMP 472/DataSet copy"
+datasetPath = "/Users/vanakuruvila/Documents/School/COMP 472/DataSet2"
 
 #Data Cleaning 
 data_transforms = transforms.Compose([
     transforms.Resize((224, 224)),
-    transforms.Grayscale(num_output_channels=3),
+    transforms.RandomHorizontalFlip(0.5),
+    transforms.RandomVerticalFlip(0.2),
+    transforms.RandomRotation(degrees=(-10, 10)),
+    transforms.RandomResizedCrop(size=(224, 224), scale=(0.9, 1.1), ratio=(0.9, 1.1)),
+    transforms.ColorJitter(brightness=(0.5,1.5),contrast=(0.5,1.5),saturation=(0.5,1.5),hue=(-0.1,0.1)),
+    transforms.GaussianBlur(kernel_size=3, sigma=2),
+    transforms.RandomGrayscale(p=0.1),
     transforms.ToTensor(),
     transforms.Normalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225]) # Standard from ImageNet
 ])
@@ -79,9 +85,9 @@ for i in range(4):
         channel3 =normalized_array[:, :, 2].flatten()
 
         ax = axes[k // 5, k % 5]
-        ax.hist(channel1, bins=128, range=[0, 256], density=True, color='red', alpha=0.5, label='Red')
-        ax.hist(channel2, bins=128, range=[0, 256], density=True, color='green', alpha=0.5, label='Green')
-        ax.hist(channel3, bins=128, range=[0, 256], density=True, color='blue', alpha=0.5, label='Blue')
+        ax.hist(channel1, bins=100, range=[0, 256], density=True, color='red', alpha=0.5, label='Red')
+        ax.hist(channel2, bins=100, range=[0, 256], density=True, color='green', alpha=0.5, label='Green')
+        ax.hist(channel3, bins=100, range=[0, 256], density=True, color='blue', alpha=0.5, label='Blue')
         
         ax.set_title(f"Image #{k+1}", fontsize=8)
         ax.axis("on")
@@ -94,23 +100,10 @@ for i in range(4):
    
 
 
-"""pilImage = TF.to_pil_image(samples[0][0])
+"""
 
-normalized_array = np.array(pilImage)
-
-channel1 = normalized_array[:, :, 0].flatten()
-channel2 =normalized_array[:, :, 1].flatten()
-channel3 =normalized_array[:, :, 2].flatten()
-
-pilImage.show()
-
-
-plt.hist(channel1, bins=128, range=[0, 256], density=True, color='red', alpha=0.7, label='Red')
-plt.hist(channel2, bins=128, range=[0, 256], density=True, color='green', alpha=0.7, label='Green')
-plt.hist(channel3, bins=128, range=[0, 256], density=True, color='blue', alpha=0.7, label='Blue')
-
-#plt.xticks(np.linspace(0, 1, num=11))
-plt.title('Pixel Distribution of Normalized Image')
-plt.xlabel('Pixel Value')
-plt.ylabel('Frequency')
-plt.show()"""
+https://www.geeksforgeeks.org/how-to-normalize-images-in-pytorch/
+https://medium.com/@sehjadkhoja0/title-exploring-and-analyzing-image-data-with-python-79a7f72f4d2b
+https://www.kaggle.com/code/sanikamal/data-visualization-using-matplotlib
+https://www.geeksforgeeks.org/how-to-rotate-an-image-by-an-angle-using-pytorch-in-python/
+https://openreview.net/pdf?id=HXz7Vcm3VgM"""
