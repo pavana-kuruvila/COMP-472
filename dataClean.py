@@ -12,15 +12,15 @@ datasetPath = "/Users/vanakuruvila/Documents/School/COMP 472/DataSet2"
 #Data Cleaning 
 data_transforms = transforms.Compose([
     transforms.Resize((224, 224)),
-    transforms.RandomHorizontalFlip(0.5),
-    transforms.RandomVerticalFlip(0.2),
-    transforms.RandomRotation(degrees=(-10, 10)),
-    transforms.RandomResizedCrop(size=(224, 224), scale=(0.9, 1.1), ratio=(0.9, 1.1)),
-    transforms.ColorJitter(brightness=(0.5,1.5),contrast=(0.5,1.5),saturation=(0.5,1.5),hue=(-0.1,0.1)),
-    transforms.GaussianBlur(kernel_size=3, sigma=2),
-    transforms.RandomGrayscale(p=0.1),
+   # transforms.RandomHorizontalFlip(0.5),
+   # transforms.RandomVerticalFlip(0.2),
+   # transforms.RandomRotation(degrees=(-10, 10)),
+   # transforms.RandomResizedCrop(size=(224, 224), scale=(0.9, 1.1), ratio=(0.9, 1.1)),
+   # transforms.ColorJitter(brightness=(0.5,1.5),contrast=(0.5,1.5),saturation=(0.5,1.5),hue=(-0.1,0.1)),
+   # transforms.GaussianBlur(kernel_size=3, sigma=2),
+   # transforms.RandomGrayscale(p=0.1),
     transforms.ToTensor(),
-    transforms.Normalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225]) # Standard from ImageNet
+   # transforms.Normalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225]) # Standard from ImageNet
 ])
 
 dataset = datasets.ImageFolder(datasetPath, transform=data_transforms)
@@ -59,7 +59,7 @@ testLoadeer = DataLoader(testSet, shuffle=True, batch_size=32)
 
 
 #Data Visuilization: Random images display 
-for i in range(4):
+for i in range(1):
     samples = [(image, label) for image, label in trainSet if dataset.classes[label] == dataset.classes[i]][:25]
 
     fig, axes = plt.subplots(5, 5, figsize=(12,8))
@@ -97,9 +97,49 @@ for i in range(4):
     plt.suptitle(f"Class: {dataset.classes[i]}", fontsize=22, fontweight="bold")
     plt.show()
 
-   
+    transform = transforms.Compose([
+        transforms.RandomHorizontalFlip(0.5),
+        transforms.RandomVerticalFlip(0.2),
+        transforms.RandomRotation(degrees=(-10, 10)),
+        transforms.RandomResizedCrop(size=(224, 224), scale=(0.9, 1.1), ratio=(0.9, 1.1)),
+        transforms.ColorJitter(brightness=(0.5,1.5),contrast=(0.5,1.5),saturation=(0.5,1.5),hue=(-0.1,0.1)),
+        transforms.GaussianBlur(kernel_size=3, sigma=2),
+        transforms.RandomGrayscale(p=0.1),
+    ])
 
+    transformed_tensors = [transform(image) for image, label in samples]
 
+    fig, axes = plt.subplots(5, 5, figsize=(12,8))
+    for j, transformed_tensor in enumerate(transformed_tensors):
+        pilImage = TF.to_pil_image(transformed_tensor)
+        ax = axes[j // 5, j % 5]
+        ax.imshow(pilImage)
+        ax.set_title(f"Image #{j+1}")
+        ax.axis("off")
+
+    plt.subplots_adjust(wspace=-0.7, hspace=0.5)
+    plt.suptitle(f"Class: {dataset.classes[i]}", fontsize=22, fontweight="bold")
+    plt.show()
+
+    additional_transform = transforms.Compose([
+    transforms.Normalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225]) # Standard from ImageNet
+])
+
+# Apply additional transformations to each tensor in the array
+    final_transformed_tensors = [additional_transform(tensor) for tensor in transformed_tensors]
+
+    fig, axes = plt.subplots(5, 5, figsize=(12, 8))
+    for j, final_transformed_tensor in enumerate(final_transformed_tensors):
+        pilImage = TF.to_pil_image(final_transformed_tensor)
+        ax = axes[j // 5, j % 5]
+        ax.imshow(pilImage)
+        ax.set_title(f"Image #{j+1}")
+        ax.axis("off")
+
+    plt.subplots_adjust(wspace=-0.7, hspace=0.5)
+    plt.suptitle(f"Class: {dataset.classes[i]}", fontsize=22, fontweight="bold")
+    plt.show()
+        
 """
 
 https://www.geeksforgeeks.org/how-to-normalize-images-in-pytorch/
