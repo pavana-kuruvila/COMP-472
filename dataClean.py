@@ -15,7 +15,6 @@ datasetPath = "./dataset2/"
 data_transforms = transforms.Compose([
     transforms.Resize((224, 224)),
     transforms.RandomHorizontalFlip(0.5),
-    transforms.RandomVerticalFlip(0.2),
     transforms.RandomRotation(degrees=(-10, 10)),
     transforms.RandomResizedCrop(size=(224, 224), scale=(0.9, 1.1), ratio=(0.9, 1.1)),
     transforms.ColorJitter(brightness=(0.5,1.5),contrast=(0.5,1.5),saturation=(0.5,1.5),hue=(-0.1,0.1)),
@@ -32,32 +31,6 @@ print("Dataset classes: ", dataset.classes)
 
 
 
-# ----------------- Data Visualization: Bar Graph -------------------- #
-distrubutionList = []
-
-classHappy = [(image, label) for image, label in dataset if dataset.classes[label] == dataset.classes[0]]
-distrubutionList.append(len(classHappy))
-
-classFocused = [(image, label) for image, label in dataset if dataset.classes[label] == dataset.classes[1]]
-distrubutionList.append(len(classFocused))
-
-classNeutral = [(image, label) for image, label in dataset if dataset.classes[label] == dataset.classes[2]]
-distrubutionList.append(len(classNeutral))
-
-classSurprised = [(image, label) for image, label in dataset if dataset.classes[label] == dataset.classes[3]]
-distrubutionList.append(len(classSurprised))
-
-print(distrubutionList)
-
-plt.bar(dataset.classes, distrubutionList)      
-plt.ylabel('Number of Images in each Class')  # labling y-axis
-plt.xlabel('Class Name')           # labling x-axis
-plt.title('Distribution of images per class')  
-plt.show()   
-# ----------------- Data Visualization: Bar Graph -------------------- #
-
-
-
 #Split into traing and test sets
 trainSet, testSet = random_split(dataset, [0.8,0.2])
 
@@ -66,7 +39,7 @@ testLoadeer = DataLoader(testSet, shuffle=True, batch_size=32)
 
 
 
-# ------------------ Data Visuilization: Random images display -------------------- #
+# ------------------ Random images display After Cleaning-------------------- #
 for i in range(4):
     samples = [(image, label) for image, label in trainSet if dataset.classes[label] == dataset.classes[i]][:25]
 
@@ -83,34 +56,8 @@ for i in range(4):
 
     #formatting and title
     plt.subplots_adjust(wspace=-0.7, hspace=0.5)
-    plt.suptitle(f"Class: {dataset.classes[i]}", fontsize=22, fontweight="bold")
+    plt.suptitle(f"Class: {dataset.classes[i]}, After Data Cleaning", fontsize=22, fontweight="bold")
     plt.show()
 
-    #displaying the image pixel densities 
-    fig, axes = plt.subplots(5, 5, figsize=(12,10))
-    for k, (image, label) in enumerate(samples):
-        pilImage = TF.to_pil_image(image)
-
-        normalized_array = np.array(pilImage)
-
-        #exatracting each RGB channel to overlay on the histogram
-        channel1 = normalized_array[:, :, 0].flatten()
-        channel2 =normalized_array[:, :, 1].flatten()
-        channel3 =normalized_array[:, :, 2].flatten()
-
-        #overlaying the density channels
-        ax = axes[k // 5, k % 5]
-        ax.hist(channel1, bins=100, range=[0, 256], density=True, color='red', alpha=0.5, label='Red')
-        ax.hist(channel2, bins=100, range=[0, 256], density=True, color='green', alpha=0.5, label='Green')
-        ax.hist(channel3, bins=100, range=[0, 256], density=True, color='blue', alpha=0.5, label='Blue')
-        
-        #titles and grid line for graphs
-        ax.set_title(f"Image #{k+1}", fontsize=8)
-        ax.axis("on")
-        ax.tick_params(axis='both', labelsize=8) 
-
-    plt.subplots_adjust(wspace=0.5, hspace=0.6)
-    plt.suptitle(f"Class: {dataset.classes[i]}", fontsize=22, fontweight="bold")
-    plt.show()
 # ------------------ Data Visuilization: Random images display -------------------- #
         
