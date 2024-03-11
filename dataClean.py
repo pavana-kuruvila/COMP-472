@@ -8,7 +8,7 @@ import matplotlib.pyplot as plt
 import torchvision.transforms.functional as TF
 
 #dataset path
-datasetPath = "/Users/vanakuruvila/Documents/School/COMP 472/DataSet2"
+datasetPath = "./dataset2/"
 
 #---------  Data Cleaning transformations to apply ----------#
 
