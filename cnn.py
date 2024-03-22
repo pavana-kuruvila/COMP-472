@@ -38,7 +38,7 @@ trainSet, testSet = random_split(dataset, [0.8,0.2])
 trainLoader = DataLoader(trainSet, shuffle=True, batch_size=32)
 testLoader = DataLoader(testSet, shuffle=True, batch_size=32)
 
-num_epochs = 20
+num_epochs = 10
 num_classes = 4
 learning_rate = 0.001
 
@@ -52,13 +52,20 @@ class CNN(nn.Module):
         super(CNN, self).__init()
         self.conv_layer = nn.Sequential(
 
+            #we currently have 4 convulutional layers, number of filters increase throught the layers so the CNN can learn higher level features
+            #we could add another layer with more channels to deepen the feature recognitions, but too many layer can lead to over fitting
+
+            #out channels is number of filters and kernel size is the filter size so 3x3 and padding is 1
             nn.Conv2d(in_channels=3, out_channels=32, kernel_size=3, padding=1),
+            #normalization
             nn.BatchNorm2d(32),
+            #allows a small, non-zero gradient when the unit is not active helps with vanishing gradient problem.
             nn.LeakyReLU(inplace=True),
 
             nn.Conv2d(in_channels=32, out_channels=32, kernel_size=3, padding=1),
             nn.BatchNorm2d(32),
             nn.LeakyReLU(inplace=True),
+            #pooling window is 2x2 and stride means it moves by 2 pixels at a time
             nn.MaxPool2d(kernel_size=2, stride=2),
 
             nn.Conv2d(in_channels=32, out_channels=64, kernel_size=3, padding=1),
@@ -72,26 +79,29 @@ class CNN(nn.Module):
         )
 
         self.fc_layer = nn.Sequential(
+            #randomly sets input units to zero to prevent overfitting
             nn.Dropout(p=0.1),
             nn.Linear(8 * 8 * 64, 1000),
             nn.ReLU(inplace=True),
             nn.Linear(1000, 512),
             nn.ReLU(inplace=True),
             nn.Dropout(p=0.1),
-            nn.Linear(512, 10)
+            nn.Linear(512, 4)
         )
     
 def forward(self, x):
-# conv layers
+    # performs the convolutional layers
     x = self.conv_layer(x)
-    # flatten
+    # flatten to 2d 
     x = x.view(x.size(0), -1)
-    # fc layer
+    # fully connected layer to performs classification base don the feautres that model extracted
     x = self.fc_layer(x)
     return x
 
 model = CNN()
+#loss function 
 criterion = nn.CrossEntropyLoss()
+#updates the weight of the model
 optimizer = torch.optim.Adam(model.parameters(), lr=learning_rate)
 
 total_step = len(trainLoader)
@@ -102,11 +112,15 @@ for epoch in range(num_epochs):
     for i, (image, label) in enumerate(trainLoader):
         
         #Forward pass
+        #images is extracted and ran through cnn
         outputs= model(image)
+        #loss function is given the CNN output and the actual label to calculated the loss
         loss = criterion(outputs, label)
+        #loss differene is appended to list
         loss_list.append(loss.item())
 
         # Backprop and optimisation
+        #claculate loss gradients nad optimizer updates model parameters base don gradients 
         optimizer.zero_grad()
         loss.backward()
         optimizer.step()
@@ -114,7 +128,9 @@ for epoch in range(num_epochs):
         # Train accuracy
         total = label.size(0)
         _, predicted = torch.max(outputs.data, 1)
+        #compare the predicted label with the real label, correct hold # of correct label for the current batch 
         correct = (predicted == label).sum().item()
+        #compute batch accuracy
         acc_list.append(correct / total)
 
         if (i + 1) % 100 == 0:
@@ -126,15 +142,18 @@ model.eval()
 with torch.no_grad():
     correct = 0
     total = 0
+    #gets total #for images proccesed and the number of correct procced 
     for images, labels in testLoader:
         outputs = model(images)
         _, predicted = torch.max(outputs.data, 1)
         total += labels.size(0)
         correct += (predicted == labels).sum().item()
 
-    print('Test Accuracy of the model on the 10000 test images: {} %'
+    print('Test Accuracy of the model on the test images: {} %'
         .format((correct / total) * 100))
     
+
+    #look into early stopping techniques
 #to save
 #torch.save(modelA.state_dict(), PATH)
 #torestore
