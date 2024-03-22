@@ -36,7 +36,7 @@ print("Dataset classes: ", dataset.classes)
 trainSet, testSet = random_split(dataset, [0.8,0.2])
 
 trainLoader = DataLoader(trainSet, shuffle=True, batch_size=32)
-testLoadeer = DataLoader(testSet, shuffle=True, batch_size=32)
+testLoader = DataLoader(testSet, shuffle=True, batch_size=32)
 
 num_epochs = 20
 num_classes = 4
@@ -64,7 +64,7 @@ class CNN(nn.Module):
             nn.Conv2d(in_channels=32, out_channels=64, kernel_size=3, padding=1),
             nn.BatchNorm2d(64),
             nn.LeakyReLU(inplace=True),
-            
+
             nn.Conv2d(in_channels=64, out_channels=64, kernel_size=3, padding=1),
             nn.BatchNorm2d(64),
             nn.LeakyReLU(inplace=True),
@@ -89,3 +89,54 @@ def forward(self, x):
     # fc layer
     x = self.fc_layer(x)
     return x
+
+model = CNN()
+criterion = nn.CrossEntropyLoss()
+optimizer = torch.optim.Adam(model.parameters(), lr=learning_rate)
+
+total_step = len(trainLoader)
+loss_list = []
+acc_list = []
+
+for epoch in range(num_epochs):
+    for i, (image, label) in enumerate(trainLoader):
+        
+        #Forward pass
+        outputs= model(image)
+        loss = criterion(outputs, label)
+        loss_list.append(loss.item())
+
+        # Backprop and optimisation
+        optimizer.zero_grad()
+        loss.backward()
+        optimizer.step()
+
+        # Train accuracy
+        total = label.size(0)
+        _, predicted = torch.max(outputs.data, 1)
+        correct = (predicted == label).sum().item()
+        acc_list.append(correct / total)
+
+        if (i + 1) % 100 == 0:
+            print('Epoch [{}/{}], Step [{}/{}], Loss: {:.4f}, Accuracy: {:.2f}%'
+                .format(epoch + 1, num_epochs, i + 1, total_step, loss.item(),
+                (correct / total) * 100))
+            
+model.eval()
+with torch.no_grad():
+    correct = 0
+    total = 0
+    for images, labels in testLoader:
+        outputs = model(images)
+        _, predicted = torch.max(outputs.data, 1)
+        total += labels.size(0)
+        correct += (predicted == labels).sum().item()
+
+    print('Test Accuracy of the model on the 10000 test images: {} %'
+        .format((correct / total) * 100))
+    
+#to save
+#torch.save(modelA.state_dict(), PATH)
+#torestore
+#modelB = TheModelBClass(*args, **kwargs)
+#smodelB.load_state_dict(torch.load(PATH), strict=False)
