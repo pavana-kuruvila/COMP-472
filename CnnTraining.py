@@ -19,7 +19,7 @@ from cnn import SecondCNN
 from sklearn.metrics import confusion_matrix, ConfusionMatrixDisplay
 
 #dataset path
-datasetPath = "/Users/tarakuruvila/.spyder-py3/dataset2"
+datasetPath = "DataSet2"
 
 #---------  Data Cleaning transformations to apply ----------#
 
@@ -47,7 +47,7 @@ trainSet, testSet, validationSet = random_split(dataset, [0.7,0.15,0.15])
 
 trainLoader = DataLoader(trainSet, shuffle=True, batch_size=32)
 testLoader = DataLoader(testSet, shuffle=True, batch_size=1000)
-ValidationLoader = DataLoader(testSet, shuffle=True, batch_size=1000)
+ValidationLoader = DataLoader(validationSet, shuffle=True, batch_size=1000)
 
 num_epochs = 1
 num_classes = 4
@@ -57,7 +57,7 @@ classes = dataset.classes
 
 
 
-def save_checkpoint(state_dict, filename='/Users/tarakuruvila/documents/testmodelsComp472.pth.tar'):
+def save_checkpoint(state_dict, filename='/Users/ektapatel/Desktop/Models/testmodelsComp472.pth.tar'):
     print("Saving Checkpoint")
     torch.save(state_dict,filename)
     
@@ -161,10 +161,34 @@ with torch.no_grad():
     
     print('Test Accuracy of the model on the test images: {} %'
             .format((correct / total) * 100))
-    
+    '''
 cm = confusion_matrix(matrixAcutal, matrixPredictions)
 ConfusionMatrixDisplay(cm).plot()
-    
+plt.show()
+'''
+
+# Flatten the lists of tensors
+matrix_actual_flat = np.concatenate([labels.numpy().flatten() for labels in matrixAcutal])
+matrix_predictions_flat = np.concatenate([predictions.numpy().flatten() for predictions in matrixPredictions])
+
+# Compute confusion matrix
+cm = confusion_matrix(matrix_actual_flat, matrix_predictions_flat)
+
+# Define class names
+classes = ['Focused', 'Happy', 'Neutral', 'Surprised']
+
+
+# Plot confusion matrix
+plt.figure(figsize=(8, 6))
+ConfusionMatrixDisplay(cm, display_labels=classes).plot(cmap='Blues')
+plt.title('Confusion Matrix')
+plt.xlabel('Predicted Label')
+plt.ylabel('True Label')
+plt.show()
+
+
+
+
 #directory = "/Users/tarakuruvila/documents/testmodelsComp472.pth"
     
 #torch.save(model.state_dict(), directory)
