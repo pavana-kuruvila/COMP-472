@@ -7,8 +7,6 @@ from torch.utils.data import DataLoader , random_split
 import matplotlib.pyplot as plt
 import torchvision.transforms.functional as TF
 import torch.nn as nn
-from sklearn.metrics import confusion_matrix, ConfusionMatrixDisplay
-
 
 #dataset path
 datasetPath = "./dataset2/"
@@ -140,32 +138,22 @@ for epoch in range(num_epochs):
                 .format(epoch + 1, num_epochs, i + 1, total_step, loss.item(),
                 (correct / total) * 100))
             
-
-matrixAcutal = []
-matrixPredictions = []    
-
 model.eval()
 with torch.no_grad():
     correct = 0
     total = 0
     #gets total #for images proccesed and the number of correct procced 
     for images, labels in testLoader:
-        matrixAcutal.append(labels)
-
         outputs = model(images)
         _, predicted = torch.max(outputs.data, 1)
-
-        matrixPredictions.append(predicted)
         total += labels.size(0)
         correct += (predicted == labels).sum().item()
 
     print('Test Accuracy of the model on the test images: {} %'
         .format((correct / total) * 100))
     
-cm = confusion_matrix(matrixAcutal, matrixPredictions)
-ConfusionMatrixDisplay(cm).plot()
 
-#look into early stopping techniques
+    #look into early stopping techniques
 #to save
 #torch.save(modelA.state_dict(), PATH)
 #torestore
