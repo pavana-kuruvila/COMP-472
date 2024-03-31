@@ -91,7 +91,7 @@ for epoch in range(num_epochs):
         #claculate loss gradients nad optimizer updates model parameters base don gradients 
         optimizer.zero_grad()
         loss.backward()
-        nn.utils.clip_grad_norm_(model.parameters(), 2.0)
+        nn.utils.clip_grad_norm_(model.parameters(), 0.5)
         optimizer.step()
 
         # Train accuracy
