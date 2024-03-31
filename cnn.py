@@ -1,11 +1,3 @@
-#!/usr/bin/env python3
-# -*- coding: utf-8 -*-
-"""
-Created on Fri Mar 29 08:41:55 2024
-
-@author: tarakuruvila
-"""
-
 import torch
 import numpy as np
 from torchvision import transforms 
@@ -59,7 +51,7 @@ classes = dataset.classes
 class CNN(nn.Module):
 
     def __init__(self):
-        super(SecondCNN, self).__init__()
+        super(CNN, self).__init()
         self.conv_layer = nn.Sequential(
 
             #we currently have 4 convulutional layers, number of filters increase throught the layers so the CNN can learn higher level features
@@ -91,22 +83,22 @@ class CNN(nn.Module):
         self.fc_layer = nn.Sequential(
             #randomly sets input units to zero to prevent overfitting
             nn.Dropout(p=0.1),
-            nn.Linear(56 * 56 * 64, 1000),
-            nn.LeakyReLU(inplace=True),
+            nn.Linear(8 * 8 * 64, 1000),
+            nn.ReLU(inplace=True),
             nn.Linear(1000, 512),
-            nn.LeakyReLU(inplace=True),
+            nn.ReLU(inplace=True),
             nn.Dropout(p=0.1),
-            nn.Linear(512, 10)
+            nn.Linear(512, 4)
         )
     
-    def forward(self, x):
-            # performs the convolutional layers
-            x = self.conv_layer(x)
-            # flatten to 2d 
-            x = x.view(x.size(0), -1)
-            # fully connected layer to performs classification base don the feautres that model extracted
-            x = self.fc_layer(x)
-            return x
+def forward(self, x):
+    # performs the convolutional layers
+    x = self.conv_layer(x)
+    # flatten to 2d 
+    x = x.view(x.size(0), -1)
+    # fully connected layer to performs classification base don the feautres that model extracted
+    x = self.fc_layer(x)
+    return x
 
 model = CNN()
 #loss function 
