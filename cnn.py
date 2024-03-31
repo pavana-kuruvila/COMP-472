@@ -52,9 +52,9 @@ class SecondCNN(nn.Module):
             #randomly sets input units to zero to prevent overfitting
             nn.Dropout(p=0.1),
             nn.Linear(56 * 56 * 64, 1000),
-            nn.ReLU(inplace=True),
+            nn.LeakyReLU(inplace=True),
             nn.Linear(1000, 512),
-            nn.ReLU(inplace=True),
+            nn.LeakyReLU(inplace=True),
             nn.Dropout(p=0.1),
             nn.Linear(512, 10)
         )
