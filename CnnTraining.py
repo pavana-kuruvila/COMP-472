@@ -49,14 +49,14 @@ trainLoader = DataLoader(trainSet, shuffle=True, batch_size=32)
 testLoader = DataLoader(testSet, shuffle=True, batch_size=1000)
 ValidationLoader = DataLoader(validationSet, shuffle=True, batch_size=1000)
 
-num_epochs = 1
+num_epochs = 10
 num_classes = 4
 learning_rate = 0.001
 
 classes = dataset.classes
 
 
-
+#function to save a model
 def save_checkpoint(state_dict, filename='./testmodelsComp472.pth.tar'):
     print("Saving Checkpoint")
     torch.save(state_dict,filename)
@@ -122,19 +122,23 @@ for epoch in range(num_epochs):
         for images, labels in ValidationLoader:
             outputs = model(images)
             _, predicted = torch.max(outputs.data, 1)
+            #calculating the accuracy
             total += labels.size(0)
             correct += (predicted == labels).sum().item()
+            #calculating the loss
             loss = criterion(outputs, labels)
             val_loss +=loss.item()*images.size(0)
             
     val_accuracy = correct / total
     avg_val_loss = val_loss / len(ValidationLoader.sampler)
-    
+
+    #saving the checkpoint if the loss is less than the previous
     if avg_val_loss <= epochLoss:
         save_checkpoint(model.state_dict())
         epochLoss = avg_val_loss
         counter = 0
-        
+
+    #implementing early stopping
     else:
         counter += 1
         if counter >= stopping_threshold:
@@ -165,11 +169,7 @@ with torch.no_grad():
     
     print('Test Accuracy of the model on the test images: {} %'
             .format((correct / total) * 100))
-    '''
-cm = confusion_matrix(matrixAcutal, matrixPredictions)
-ConfusionMatrixDisplay(cm).plot()
-plt.show()
-'''
+ 
 
 # Flatten the lists of tensors
 matrix_actual_flat = np.concatenate([labels.numpy().flatten() for labels in matrixAcutal])
@@ -189,16 +189,3 @@ plt.title('Confusion Matrix')
 plt.xlabel('Predicted Label')
 plt.ylabel('True Label')
 plt.show()
-
-
-
-
-#directory = "/Users/tarakuruvila/documents/testmodelsComp472.pth"
-    
-#torch.save(model.state_dict(), directory)
-    #look into early stopping techniques
-#to save
-#torch.save(modelA.state_dict(), PATH)
-#torestore
-#modelB = TheModelBClass(*args, **kwargs)
-#smodelB.load_state_dict(torch.load(PATH), strict=False)
