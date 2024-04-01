@@ -18,7 +18,7 @@ import torch.nn as nn
 from cnn import SecondCNN as CNN
 
 #dataset path
-datasetPath = "/Users/tarakuruvila/.spyder-py3/dataset2"
+datasetPath = "./dataset2/"
 
 #---------  Data Cleaning transformations to apply ----------#
 
@@ -47,7 +47,7 @@ classes = ["Focused",
 
 
 models = CNN()
-models.load_state_dict(torch.load('/Users/tarakuruvila/documents/testmodelsComp472.pth.tar'))
+models.load_state_dict(torch.load('./testmodelsComp472.pth.tar'))
 models.eval()
 
 
@@ -77,6 +77,6 @@ def classifyDataset(data_transforms,datasetPath):
         print('Test Accuracy of the model on the images: {} %'
                 .format((correct / total) * 100))
     
-classifySingleImage(data_transforms,"/Users/tarakuruvila/.spyder-py3/happy.jpg", classes)
-classifyDataset(data_transforms,"/Users/tarakuruvila/.spyder-py3/dataset2" )
+classifySingleImage(data_transforms,"./testHappyImage.jpg", classes)
+classifyDataset(data_transforms,"./dataset2/" )
         
