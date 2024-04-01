@@ -17,9 +17,6 @@ import torchvision.transforms.functional as TF
 import torch.nn as nn
 from cnn import SecondCNN as CNN
 
-#dataset path
-datasetPath = "./dataset2/"
-
 #---------  Data Cleaning transformations to apply ----------#
 
 data_transforms = transforms.Compose([
@@ -34,11 +31,9 @@ data_transforms = transforms.Compose([
     transforms.Normalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225]) # Standard from ImageNet
 ])
 
-#transforming the data
-dataset = datasets.ImageFolder(datasetPath, transform=data_transforms)
-print("Dataset classes: ", dataset.classes)
 #----------------------------------------------------------------#
 
+#Defining the classes
 classes = ["Focused", 
            "Happy", 
            "Surpised", 
@@ -46,22 +41,28 @@ classes = ["Focused",
            ]
 
 
+
 models = CNN()
+#Loading the saved model
 models.load_state_dict(torch.load('./testmodelsComp472.pth.tar'))
 models.eval()
 
 
 def classifySingleImage(data_transforms,imagePath, classes):
+    #opening the image
     image = Image.open(imagePath)
+    #transforming it
     image = data_transforms(image)
     image = image.unsqueeze(0)
     with torch.no_grad():
+        #getting the prediction
         output = models(image)
     _, predicted = torch.max(output.data, 1)
         
     print(classes[predicted.item()])
     
 def classifyDataset(data_transforms,datasetPath):
+    #transforming the dataset
     dataset = datasets.ImageFolder(datasetPath, transform=data_transforms)
     inferenceLoader = DataLoader(dataset, shuffle=True, batch_size=1000)
     with torch.no_grad():
@@ -69,6 +70,7 @@ def classifyDataset(data_transforms,datasetPath):
         total = 0
         #gets total #for images proccesed and the number of correct procced 
         for images, labels in inferenceLoader:
+            #getting the predictions
             outputs = models(images)
             _, predicted = torch.max(outputs.data, 1)
             total += labels.size(0)
@@ -80,3 +82,4 @@ def classifyDataset(data_transforms,datasetPath):
 classifySingleImage(data_transforms,"./testHappyImage.jpg", classes)
 classifyDataset(data_transforms,"./dataset2/" )
         
+
