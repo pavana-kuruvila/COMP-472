@@ -19,7 +19,7 @@ from cnn import SecondCNN
 from sklearn.metrics import confusion_matrix, ConfusionMatrixDisplay
 
 #dataset path
-datasetPath = "DataSet2"
+datasetPath = "./dataset2"
 
 #---------  Data Cleaning transformations to apply ----------#
 
@@ -57,7 +57,7 @@ classes = dataset.classes
 
 
 
-def save_checkpoint(state_dict, filename='/Users/ektapatel/Desktop/Models/testmodelsComp472.pth.tar'):
+def save_checkpoint(state_dict, filename='./testmodelsComp4722.pth.tar'):
     print("Saving Checkpoint")
     torch.save(state_dict,filename)
     
@@ -75,6 +75,10 @@ acc_list = []
 epochLoss=500
 counter = 0
 stopping_threshold =3
+loadModel = False
+
+if loadModel:
+    model.load_state_dict(torch.load('./testmodelsComp472.pth.tar'))
 
 for epoch in range(num_epochs):
     for i, (image, label) in enumerate(trainLoader):
