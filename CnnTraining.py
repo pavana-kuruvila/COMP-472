@@ -57,7 +57,7 @@ classes = dataset.classes
 
 
 
-def save_checkpoint(state_dict, filename='./testmodelsComp4722.pth.tar'):
+def save_checkpoint(state_dict, filename='./testmodelsComp472.pth.tar'):
     print("Saving Checkpoint")
     torch.save(state_dict,filename)
     
