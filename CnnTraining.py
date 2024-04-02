@@ -57,7 +57,7 @@ classes = dataset.classes
 
 
 #function to save a model
-def save_checkpoint(state_dict, filename='./testmodelsComp472.pth.tar'):
+def save_checkpoint(state_dict, filename='./testmodelsMain.pth.tar'):
     print("Saving Checkpoint")
     torch.save(state_dict,filename)
     
@@ -78,7 +78,7 @@ stopping_threshold =3
 loadModel = False
 
 if loadModel:
-    model.load_state_dict(torch.load('./testmodelsComp472.pth.tar'))
+    model.load_state_dict(torch.load('./testmodelsMain.pth.tar'))
 
 for epoch in range(num_epochs):
     for i, (image, label) in enumerate(trainLoader):
