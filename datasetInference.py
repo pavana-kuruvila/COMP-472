@@ -44,7 +44,7 @@ classes = ["Focused",
 
 models = CNN()
 #Loading the saved model
-models.load_state_dict(torch.load('./testmodelsComp472.pth.tar'))
+models.load_state_dict(torch.load('./testmodelsMain.pth.tar'))
 models.eval()
 
 
