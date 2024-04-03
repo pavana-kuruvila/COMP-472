@@ -16,10 +16,12 @@ import matplotlib.pyplot as plt
 import torchvision.transforms.functional as TF
 import torch.nn as nn
 from cnn import SecondCNN
+from cnnVarient1 import SecondCNN as CNNV1
+from cnnVarient2 import SecondCNN as CNNV2
 from sklearn.metrics import confusion_matrix, ConfusionMatrixDisplay
 
 #dataset path
-datasetPath = "./dataset2"
+datasetPath = "./dataset2/"
 
 #---------  Data Cleaning transformations to apply ----------#
 
@@ -56,11 +58,15 @@ learning_rate = 0.001
 classes = dataset.classes
 
 
-#function to save a model
-def save_checkpoint(state_dict, filename='./testmodelsMain.pth.tar'):
+#chnage the path to save the models to a different file
+def save_checkpoint(state_dict, filename='./testmodel.pth.tar'):
     print("Saving Checkpoint")
     torch.save(state_dict,filename)
     
+
+#to test variants 1 or 2 replace the line with either of these
+#model = CNNV1()
+#model = CNNV2()
 
 model = SecondCNN()
 #loss function 
@@ -75,10 +81,13 @@ acc_list = []
 epochLoss=500
 counter = 0
 stopping_threshold =3
+
+#if you would like to load a model and continue working it change the path 
 loadModel = False
 
 if loadModel:
-    model.load_state_dict(torch.load('./testmodelsMain.pth.tar'))
+    #change the path you to the model you want to load
+    model.load_state_dict(torch.load('./testmodel.pth.tar'))
 
 for epoch in range(num_epochs):
     for i, (image, label) in enumerate(trainLoader):
@@ -95,7 +104,8 @@ for epoch in range(num_epochs):
         #claculate loss gradients nad optimizer updates model parameters base don gradients 
         optimizer.zero_grad()
         loss.backward()
-        nn.utils.clip_grad_norm_(model.parameters(), 0.5)
+        #gradient clipping
+        nn.utils.clip_grad_norm_(model.parameters(), 0.75)
         optimizer.step()
 
         # Train accuracy
@@ -120,25 +130,24 @@ for epoch in range(num_epochs):
         val_loss = 0.0
         #gets total #for images proccesed and the number of correct procced 
         for images, labels in ValidationLoader:
+            #gets the predictions
             outputs = model(images)
             _, predicted = torch.max(outputs.data, 1)
-            #calculating the accuracy
+            #getting the accuracy
             total += labels.size(0)
             correct += (predicted == labels).sum().item()
-            #calculating the loss
+            #getting the loss
             loss = criterion(outputs, labels)
             val_loss +=loss.item()*images.size(0)
             
     val_accuracy = correct / total
     avg_val_loss = val_loss / len(ValidationLoader.sampler)
-
-    #saving the checkpoint if the loss is less than the previous
+    
     if avg_val_loss <= epochLoss:
         save_checkpoint(model.state_dict())
         epochLoss = avg_val_loss
         counter = 0
-
-    #implementing early stopping
+        
     else:
         counter += 1
         if counter >= stopping_threshold:
@@ -160,16 +169,18 @@ with torch.no_grad():
     for images, labels in testLoader:
         matrixAcutal.append(labels)
         
+        #gets the predictions
         outputs = model(images)
         _, predicted = torch.max(outputs.data, 1)
         matrixPredictions.append(predicted)
         
+        #calculates the accuracy
         total += labels.size(0)
         correct += (predicted == labels).sum().item()
     
     print('Test Accuracy of the model on the test images: {} %'
             .format((correct / total) * 100))
- 
+
 
 # Flatten the lists of tensors
 matrix_actual_flat = np.concatenate([labels.numpy().flatten() for labels in matrixAcutal])
